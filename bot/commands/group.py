@@ -2,7 +2,7 @@ import re
 from datetime import datetime, timedelta
 
 import pytimeparse
-from telegram.ext import Filters
+from telegram.ext import Filters, MessageHandler
 
 from bot.commands import BaseCommand
 from bot.filters import Filters as OwnFilters
@@ -76,19 +76,47 @@ class Group(BaseCommand):
 
     @BaseCommand.command_wrapper(filters=Filters.group)
     def rules(self):
-        self.message.reply_text('Rules')
+        if not self.group_settings.rules:
+            return
+        self.message.reply_html(self.group_settings.rules)
 
     @BaseCommand.command_wrapper(filters=Filters.group & OwnFilters.check_permission('can_change_info'))
     def set_rules(self):
-        self.message.reply_text('Set Rules')
+        if not self.message.reply_to_message:
+            self.message.reply_text('You have to reply to the new rules.')
+            return
 
-    @BaseCommand.command_wrapper(filters=Filters.group)
+        self.group_settings.rules = self.message.reply_to_message.text_html
+        self.group_settings.save()
+        self.message.reply_text('Rules set, remove them with /clear_rules')
+
+    @BaseCommand.command_wrapper(filters=Filters.group & OwnFilters.check_permission('can_change_info'))
+    def clear_rules(self):
+        self.group_settings.rules = None
+        self.group_settings.save()
+        self.message.reply_text('Rules cleared')
+
+    @BaseCommand.command_wrapper(handler=MessageHandler, filters=Filters.group)
     def welcome(self):
-        self.message.reply_text('Welcome')
+        if not self.message.new_chat_members or not self.group_settings.welcome:
+            return
+        self.message.reply_text(self.group_settings.welcome)
 
     @BaseCommand.command_wrapper(filters=Filters.group & OwnFilters.check_permission('can_change_info'))
     def set_welcome(self):
-        self.message.reply_text('Set Welcome')
+        if not self.message.reply_to_message:
+            self.message.reply_text('You have to reply to message to the new welcome message. (ATM only text)')
+            return
+
+        self.group_settings.welcome = self.message.reply_to_message.text_html
+        self.group_settings.save()
+        self.message.reply_text('Welcome message set, remove it with /clear_welcome')
+
+    @BaseCommand.command_wrapper(filters=Filters.group & OwnFilters.check_permission('can_change_info'))
+    def clear_welcome(self):
+        self.group_settings.welcome = None
+        self.group_settings.save()
+        self.message.reply_text('Welcome message cleared')
 
     def _warn(self, user: UserSettings, count: int = None) -> bool or Warning:
         if check_permissions(self.chat, user.user, 'can_restrict_members'):

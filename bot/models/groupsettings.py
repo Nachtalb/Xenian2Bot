@@ -20,6 +20,9 @@ class GroupSettings(TimeStampedModel):
 
     dev_mode = models.BooleanField(default=False)
 
+    rules = models.TextField(blank=True, null=True)
+    welcome = models.TextField(blank=True, null=True)
+
     def __str__(self):
         return f'{self.grouptitle}@{self.groupname}'
 
