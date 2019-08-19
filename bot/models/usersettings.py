@@ -7,30 +7,12 @@ from bot.utils.internal import bot_not_running_protect
 
 
 class UserSettings(TimeStampedModel):
-    SET_REACTIONS_MENU = 'set reactions menu'
-    SET_REACTIONS = 'set reactions'
     IDLE = 'idle'
-    SET_CAPTION_MENU = 'set caption menu'
-    SET_CAPTION = 'set caption'
-    SET_IMAGE_CAPTION_MENU = 'set image caption menu'
-    SET_IMAGE_CAPTION = 'set image caption'
-    SET_IMAGE_CAPTION_NEXT = 'set image caption next'
-    SETTINGS_MENU = 'settings menu'
-    CHANNEL_SETTINGS_MENU = 'channel settings menu'
-    PRE_REMOVE_CHANNEL = 'pre remove channel'
 
-    STATES = (IDLE, SET_CAPTION_MENU, SET_CAPTION, SETTINGS_MENU, CHANNEL_SETTINGS_MENU, PRE_REMOVE_CHANNEL,
-              SET_REACTIONS_MENU, SET_REACTIONS, SET_IMAGE_CAPTION_MENU, SET_IMAGE_CAPTION, SET_IMAGE_CAPTION_NEXT)
+    STATES = (IDLE)
 
     user_id = models.fields.BigIntegerField(primary_key=True)
     _user: User = None  # Actual telegram User object
-
-    current_channel = models.ForeignKey('ChannelSettings',
-                                        related_name='current_user',
-                                        on_delete=models.DO_NOTHING,
-                                        blank=True,
-                                        null=True)
-
     _user_state = models.fields.CharField(max_length=100,
                                           choices=map(lambda s: (s, s), STATES),
                                           default=IDLE,

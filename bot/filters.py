@@ -3,7 +3,6 @@ from typing import List
 from telegram import Chat
 from telegram.ext import BaseFilter
 
-from bot.models.channel_settings import ChannelSettings
 from bot.models.usersettings import UserSettings
 from bot.utils.chat import is_media_message
 
@@ -42,15 +41,6 @@ class Filters:
                 return message.text in texts
 
         return TextIs()
-
-    class _TextIsChannel(BaseFilter):
-        name = 'Filters.text_is_channel'
-
-        def filter(self, message):
-            return message.text in list(map(lambda obj: obj.name, ChannelSettings.objects.all()))
-
-    text_is_channel = _TextIsChannel()
-    """:obj:`Filter`: Message text is name of channel."""
 
     @staticmethod
     def state_is(state):

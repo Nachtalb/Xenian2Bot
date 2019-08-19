@@ -26,7 +26,7 @@ class Base(Configuration):
         'django.contrib.messages',
         'django.contrib.staticfiles',
         'django_telegrambot',
-        'bot.apps.DjangoTelegramBotBaseConfig',
+        'bot.apps.Xenian2BotBaseConfig',
     ]
 
     MIDDLEWARE = [
@@ -91,8 +91,6 @@ class Base(Configuration):
     MEDIA_ROOT = (BASE_PATH / 'media').as_posix()
     MEDIA_URL = '/media/'
 
-    AVAILABLE_FONTS = os.environ['AVAILABLE_FONTS']
-
 
 class Production(Base):
     DEBUG = False
@@ -100,7 +98,7 @@ class Production(Base):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'channel_automa_prod',
+            'NAME': 'Xenian2Bot',
             'USER': os.environ.get('DJANGO_DB_USER'),
             'PASSWORD': os.environ.get('DJANGO_DB_PASSWD'),
             'HOST': 'localhost',
@@ -131,7 +129,7 @@ class Development(Base):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'channel_automa_dev',
+            'NAME': 'Xenian2Bot',
             'USER': '',
             'PASSWORD': '',
             'HOST': 'localhost',

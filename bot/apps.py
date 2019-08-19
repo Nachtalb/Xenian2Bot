@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class DjangoTelegramBotBaseConfig(AppConfig):
+class  Xenian2BotBaseConfig(AppConfig):
     name = 'bot'

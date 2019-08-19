@@ -23,7 +23,7 @@ class Builtins(BaseCommand):
             self.message.delete()
 
         elif 'start' in self.message.text:
-            self.message.reply_html(get_template('commands/manager/start.html').render())
+            self.message.reply_html(get_template('commands/builtins/start.html').render())
 
         if self.message.text.lower() in ['cancel', 'home', 'reset'] and self.user_settings.state != UserSettings.IDLE:
             self.message.reply_text('Current action was cancelled')
