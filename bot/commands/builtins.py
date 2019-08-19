@@ -1,5 +1,5 @@
 from django.template.loader import get_template
-from telegram import ReplyKeyboardMarkup
+from telegram import ParseMode, ReplyKeyboardMarkup
 from telegram.ext import CallbackQueryHandler, MessageHandler
 
 from bot.commands import BaseCommand
@@ -36,3 +36,13 @@ class Builtins(BaseCommand):
         self.message.reply_text('What do you want to do?', reply_markup=ReplyKeyboardMarkup(buttons))
 
     BaseCommand.register_home(start)
+
+    @BaseCommand.command_wrapper()
+    def id(self):
+        message = self.message.reply_to_message or self.message
+        forwarded = bool(message.forward_from_message_id)
+        message_id = message.forward_from_message_id if forwarded else message.message_id
+        chat_id = getattr(message.forward_from_chat if forwarded else message.chat, 'id', None)
+        user_id =  getattr(message.forward_from if forwarded else message.from_user, 'id', None)
+        self.message.reply_text(f'UserID `{user_id}`, ChatID `{chat_id}`, MessageID `{message_id}`',
+                                parse_mode=ParseMode.MARKDOWN)
