@@ -69,3 +69,10 @@ def check_bot_permissions(channel: Chat) -> bool:
     except Unauthorized:
         raise Unauthorized('Not a member')
     return True
+
+
+def check_permissions(chat: Chat, user: User, permission: str) -> bool:
+    member: ChatMember = chat.get_member(user.id)
+    if member.status == member.CREATOR:
+        return True
+    return getattr(member, permission, False)

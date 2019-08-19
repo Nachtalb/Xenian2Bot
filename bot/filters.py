@@ -1,10 +1,10 @@
 from typing import List
 
-from telegram import Chat
+from telegram import Chat, Message
 from telegram.ext import BaseFilter
 
 from bot.models.usersettings import UserSettings
-from bot.utils.chat import is_media_message
+from bot.utils.chat import check_permissions, is_media_message
 
 
 class Filters:
@@ -56,3 +56,15 @@ class Filters:
                 return user.state == state
 
         return StateIs()
+
+    @staticmethod
+    def check_permission(permission):
+        """:obj:`Filter`: Check if the current user has the given permission."""
+
+        class CheckPermission(BaseFilter):
+            name = 'Filters.check_permission'
+
+            def filter(self, message: Message) -> bool:
+                return check_permissions(message.chat, message.from_user, permission)
+
+        return CheckPermission()
