@@ -41,11 +41,15 @@ class BaseCommand:
 
         self.user_settings = None
         if self.user:
-            self.user_settings = UserSettings.objects.get_or_create(user_id=self.user.id)[0]
-            self.user_settings.auto_update_values(self.user, save=True)
+            self.user_settings = self.get_user_settings(self.user)
         if self.chat.type in ['group', 'supergroup']:
             self.group_settings = GroupSettings.objects.get_or_create(group_id=self.chat.id)[0]
             self.group_settings.auto_update_values(self.chat, save=True)
+
+    def get_user_settings(self, user: User) -> UserSettings:
+        user_settings = UserSettings.objects.get_or_create(user_id=user.id)[0]
+        user_settings.auto_update_values(user, save=True)
+        return user_settings
 
     @staticmethod
     def register_start_button(name: str, header: bool = False, footer: bool = False):
