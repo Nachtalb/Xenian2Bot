@@ -7,6 +7,7 @@ from typing import Callable, List, Type
 from telegram import Bot, Chat, Message, Update, User
 from telegram.ext import Handler, run_async
 
+from bot.models.groupsettings import GroupSettings
 from bot.models.usersettings import UserSettings
 from bot.telegrambot import my_bot
 from bot.utils.internal import get_class_that_defined_method
@@ -27,6 +28,7 @@ class BaseCommand:
     update: Update
     bot: Bot
     user_settings: UserSettings or None
+    group_settings: GroupSettings or None
     _start_buttons = [[], [], []]
     _home: Callable = None
 
@@ -41,6 +43,9 @@ class BaseCommand:
         if self.user:
             self.user_settings = UserSettings.objects.get_or_create(user_id=self.user.id)[0]
             self.user_settings.auto_update_values(self.user, save=True)
+        if self.chat.type in ['group', 'supergroup']:
+            self.group_settings = GroupSettings.objects.get_or_create(group_id=self.chat.id)[0]
+            self.group_settings.auto_update_values(self.chat, save=True)
 
     @staticmethod
     def register_start_button(name: str, header: bool = False, footer: bool = False):
