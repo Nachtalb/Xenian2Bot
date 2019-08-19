@@ -96,12 +96,6 @@ class Group(BaseCommand):
         self.group_settings.save()
         self.message.reply_text('Rules cleared')
 
-    @BaseCommand.command_wrapper(handler=MessageHandler, filters=Filters.group)
-    def welcome(self):
-        if not self.message.new_chat_members or not self.group_settings.welcome:
-            return
-        self.message.reply_text(self.group_settings.welcome)
-
     @BaseCommand.command_wrapper(filters=Filters.group & OwnFilters.check_permission('can_change_info'))
     def set_welcome(self):
         if not self.message.reply_to_message:
@@ -159,3 +153,12 @@ class Group(BaseCommand):
             self.chat.send_message(f'Warned user {user.link or user.user_fullname}.'
                                    f'\n3 Warnings result in ban. User has {warning.count} warning(s).',
                                    reply_to_message_id=self.message.reply_to_message.message_id)
+
+    @BaseCommand.command_wrapper(handler=MessageHandler, filters=Filters.group)
+    def welcome(self):
+        if not self.message.new_chat_members or not self.group_settings.welcome:
+            return
+        new_user = self.get_user_settings(self.message.new_chat_members[0])
+        self.message.reply_html(self.group_settings.welcome.format(
+            user=f'<a href="{new_user.link}">{new_user.username or new_user.user_fullname}</a>'
+        ))
