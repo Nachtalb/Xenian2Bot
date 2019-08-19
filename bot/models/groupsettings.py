@@ -14,6 +14,8 @@ class GroupSettings(TimeStampedModel):
 
     warnings = models.ManyToManyField('UserSettings', 'warned_users', symmetrical=True)
 
+    dev_mode = models.BooleanField(default=False)
+
     def __str__(self):
         return f'{self.grouptitle}@{self.groupname}'
 
