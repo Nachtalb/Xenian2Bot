@@ -1,6 +1,7 @@
 from django.template.loader import get_template
 from telegram import ParseMode, ReplyKeyboardMarkup
 from telegram.ext import CallbackQueryHandler, MessageHandler
+from telegram.ext.filters import Filters
 
 from bot.commands import BaseCommand
 from bot.filters import Filters as OwnFilters
@@ -10,13 +11,14 @@ from bot.utils.chat import build_menu
 
 class Builtins(BaseCommand):
 
-    @BaseCommand.command_wrapper()
+    @BaseCommand.command_wrapper(filters=Filters.private)
     def help(self):
         self.message.reply_html(get_template('commands/builtins/help.html').render())
 
     @BaseCommand.command_wrapper(CallbackQueryHandler, pattern='^(home|cancel)$')
-    @BaseCommand.command_wrapper(MessageHandler, filters=OwnFilters.text_is(['cancel', 'home', 'reset'], lower=True))
-    @BaseCommand.command_wrapper(names=['start', 'reset', 'cancel'])
+    @BaseCommand.command_wrapper(MessageHandler,
+                                 filters=Filters.private & OwnFilters.text_is(['cancel', 'home', 'reset'], lower=True))
+    @BaseCommand.command_wrapper(names=['start', 'reset', 'cancel'], filters=Filters.private)
     def start(self):
         if self.update.callback_query:
             self.update.callback_query.answer()
@@ -43,6 +45,6 @@ class Builtins(BaseCommand):
         forwarded = bool(message.forward_from_message_id)
         message_id = message.forward_from_message_id if forwarded else message.message_id
         chat_id = getattr(message.forward_from_chat if forwarded else message.chat, 'id', None)
-        user_id =  getattr(message.forward_from if forwarded else message.from_user, 'id', None)
+        user_id = getattr(message.forward_from if forwarded else message.from_user, 'id', None)
         self.message.reply_text(f'UserID `{user_id}`, ChatID `{chat_id}`, MessageID `{message_id}`',
                                 parse_mode=ParseMode.MARKDOWN)
