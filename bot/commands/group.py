@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from telegram.ext import Filters
 
 from bot.commands import BaseCommand
@@ -25,7 +27,9 @@ class Group(BaseCommand):
 
         if self.group_settings.dev_mode:
             return
-        self.chat.kick_member(user.user_id)
+
+        until = datetime.now() + timedelta(minutes=1)
+        self.chat.kick_member(user.user_id, until_date=until)
 
     @BaseCommand.command_wrapper(filters=Filters.group & OwnFilters.check_permission('can_restrict_members'))
     def kick(self):
