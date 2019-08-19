@@ -11,7 +11,7 @@ from bot.utils.chat import build_menu
 
 class Builtins(BaseCommand):
 
-    @BaseCommand.command_wrapper(filters=Filters.private)
+    @BaseCommand.command_wrapper()
     def help(self):
         self.message.reply_html(get_template('commands/builtins/help.html').render())
 
