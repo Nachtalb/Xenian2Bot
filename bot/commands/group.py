@@ -70,7 +70,8 @@ class Group(BaseCommand):
         if self._kick(user, delta) is False:
             self.message.reply_text(f'Could not kick {user.link or user.user_fullname}')
             return
-        self.chat.send_message(f'Kicked {user.link or user.user_fullname}', reply_to_message_id=self.message.reply_to_message.message_id)
+        self.chat.send_message(f'Kicked {user.link or user.user_fullname}',
+                               reply_to_message_id=self.message.reply_to_message.message_id)
 
     @BaseCommand.command_wrapper(filters=Filters.group)
     def rules(self):
@@ -88,6 +89,36 @@ class Group(BaseCommand):
     def set_welcome(self):
         self.message.reply_text('Set Welcome')
 
+    def _warn(self, user: UserSettings) -> bool or Warning:
+        if check_permissions(self.chat, user.user, 'can_restrict_members'):
+            return False
+
+        warning = user.warnings.get_or_create(user=user, group=self.group_settings)[0]
+
+        if self.group_settings.dev_mode:
+            return warning
+
+        warning.count += 1
+        warning.save()
+        return warning
+
     @BaseCommand.command_wrapper(filters=Filters.group & OwnFilters.check_permission('can_restrict_members'))
     def warn(self):
-        self.message.reply_text('Warn')
+        if not self.message.reply_to_message:
+            self.message.reply_text('You have to reply to a users message.')
+            return
+        user = self.get_user_settings(self.message.reply_to_message.from_user)
+
+        warning = self._warn(user)
+        if warning is False:
+            self.message.reply_text(f'Could not warn {user.link or user.user_fullname}')
+            return
+
+        if warning.count >= 3:
+            self._ban(user)
+            self.chat.send_message(f'User {user.link or user.user_fullname} was banned for reaching max warnings 3/3.',
+                                   reply_to_message_id=self.message.reply_to_message.message_id)
+        else:
+            self.chat.send_message(f'Warned user {user.link or user.user_fullname}.'
+                                   f'\n3 Warnings result in ban. User has {warning.count} warning(s).',
+                                   reply_to_message_id=self.message.reply_to_message.message_id)

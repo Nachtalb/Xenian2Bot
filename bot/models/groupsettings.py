@@ -1,8 +1,14 @@
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
-from telegram import Chat, User
+from telegram import Chat
 
 from bot.utils.internal import bot_not_running_protect
+
+
+class Warnings(TimeStampedModel):
+    user = models.ForeignKey('UserSettings', on_delete=models.CASCADE, related_name='warnings')
+    group = models.ForeignKey('GroupSettings', on_delete=models.CASCADE, related_name='warnings')
+    count = models.IntegerField(default=0)
 
 
 class GroupSettings(TimeStampedModel):
@@ -11,8 +17,6 @@ class GroupSettings(TimeStampedModel):
 
     grouptitle = models.fields.CharField(max_length=200, blank=True, null=True)
     groupname = models.fields.CharField(max_length=200, blank=True, null=True, default='')
-
-    warnings = models.ManyToManyField('UserSettings', 'warned_users', symmetrical=True)
 
     dev_mode = models.BooleanField(default=False)
 
