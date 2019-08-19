@@ -12,6 +12,8 @@ class GroupSettings(TimeStampedModel):
     grouptitle = models.fields.CharField(max_length=200, blank=True, null=True)
     groupname = models.fields.CharField(max_length=200, blank=True, null=True, default='')
 
+    warnings = models.ManyToManyField('UserSettings', 'warned_users', symmetrical=True)
+
     def __str__(self):
         return f'{self.grouptitle}@{self.groupname}'
 
