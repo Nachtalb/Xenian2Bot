@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timedelta
 
 import pytimeparse
@@ -89,16 +90,20 @@ class Group(BaseCommand):
     def set_welcome(self):
         self.message.reply_text('Set Welcome')
 
-    def _warn(self, user: UserSettings) -> bool or Warning:
+    def _warn(self, user: UserSettings, count: int = None) -> bool or Warning:
         if check_permissions(self.chat, user.user, 'can_restrict_members'):
             return False
 
         warning = user.warnings.get_or_create(user=user, group=self.group_settings)[0]
 
+        if count is not None:
+            warning.count = count
+        else:
+            warning.count += 1
+
         if self.group_settings.dev_mode:
             return warning
 
-        warning.count += 1
         warning.save()
         return warning
 
@@ -109,7 +114,11 @@ class Group(BaseCommand):
             return
         user = self.get_user_settings(self.message.reply_to_message.from_user)
 
-        warning = self._warn(user)
+        count = next(iter(re.findall('(\d+)', self.message.text)), None)
+        if count is not None:
+            count = int(count)
+
+        warning = self._warn(user, count)
         if warning is False:
             self.message.reply_text(f'Could not warn {user.link or user.user_fullname}')
             return
