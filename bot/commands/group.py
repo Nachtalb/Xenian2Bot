@@ -17,9 +17,25 @@ class Group(BaseCommand):
         self.group_settings.save()
         self.message.reply_text(f'Dev mode {"on" if self.group_settings.dev_mode else "off"}')
 
+    def _ban(self, user: UserSettings):
+        if check_permissions(self.chat, user.user, 'can_restrict_members'):
+            return False
+
+        if self.group_settings.dev_mode:
+            return
+        self.chat.kick_member(user.user_id, until_date=1)
+
     @BaseCommand.command_wrapper(filters=Filters.group & OwnFilters.check_permission('can_restrict_members'))
     def ban(self):
-        self.message.reply_text('Ban')
+        if not self.message.reply_to_message:
+            self.message.reply_text('You have to reply to a users message.')
+            return
+        user = self.get_user_settings(self.message.reply_to_message.from_user)
+
+        if self._ban(user) is False:
+            self.message.reply_text(f'Could not ban {user.link or user.user_fullname}')
+            return
+        self.message.reply_text(f'Banned {user.link or user.user_fullname}')
 
     def _kick(self, user: UserSettings):
         if check_permissions(self.chat, user.user, 'can_restrict_members'):
