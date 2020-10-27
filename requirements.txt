@@ -2,7 +2,7 @@ asn1crypto==0.24.0
 cached-property==1.5.1
 certifi==2019.6.16
 cffi==1.12.3
-cryptography==2.7
+cryptography==3.2
 Django==2.2.4
 django-configurations==2.1
 django-dotenv==1.4.2
